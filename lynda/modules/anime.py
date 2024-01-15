@@ -20,12 +20,12 @@ close_btn = "Close ❌"
 
 
 def shorten(description, info = 'anilist.co'):
-    msg = "" 
+    msg = ""
     if len(description) > 700:
-           description = description[0:500] + '....'
-           msg += f"\n*Description*: _{description}_[Read More]({info})"
+        description = f'{description[:500]}....'
+        msg += f"\n*Description*: _{description}_[Read More]({info})"
     else:
-          msg += f"\n*Description*:_{description}_"
+        msg += f"\n*Description*:_{description}_"
     return msg
 
 
@@ -33,15 +33,17 @@ def shorten(description, info = 'anilist.co'):
 def t(milliseconds: int) -> str:
     """Inputs time in milliseconds, to get beautified time,
     as string"""
-    seconds, milliseconds = divmod(int(milliseconds), 1000)
+    seconds, milliseconds = divmod(milliseconds, 1000)
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     days, hours = divmod(hours, 24)
-    tmp = ((str(days) + " Days, ") if days else "") + \
-        ((str(hours) + " Hours, ") if hours else "") + \
-        ((str(minutes) + " Minutes, ") if minutes else "") + \
-        ((str(seconds) + " Seconds, ") if seconds else "") + \
-        ((str(milliseconds) + " ms, ") if milliseconds else "")
+    tmp = (
+        (f"{str(days)} Days, " if days else "")
+        + (f"{str(hours)} Hours, " if hours else "")
+        + (f"{str(minutes)} Minutes, " if minutes else "")
+        + (f"{str(seconds)} Seconds, " if seconds else "")
+        + (f"{str(milliseconds)} ms, " if milliseconds else "")
+    )
     return tmp[:-2]
     
 airing_query = '''
@@ -165,22 +167,28 @@ def anime(update: Update, context: CallbackContext):
     if len(search) == 1: return
     else: search = search[1]
     variables = {'search' : search}
-    json = requests.post(url, json={'query': anime_query, 'variables': variables}).json()['data'].get('Media', None)
-    if json:
+    if (
+        json := requests.post(
+            url, json={'query': anime_query, 'variables': variables}
+        )
+        .json()['data']
+        .get('Media', None)
+    ):
         msg = f"*{json['title']['romaji']}*(`{json['title']['native']}`)\n*Type*: {json['format']}\n*Status*: {json['status']}\n*Episodes*: {json.get('episodes', 'N/A')}\n*Duration*: {json.get('duration', 'N/A')} Per Ep.\n*Score*: {json['averageScore']}\n*Genres*: `"
         for x in json['genres']: msg += f"{x}, "
         msg = msg[:-2] + '`\n'
         msg += "*Studios*: `"
-        for x in json['studios']['nodes']: msg += f"{x['name']}, " 
+        for x in json['studios']['nodes']: msg += f"{x['name']}, "
         msg = msg[:-2] + '`\n'
         info = json.get('siteUrl')
         trailer = json.get('trailer', None)
         if trailer:
             trailer_id = trailer.get('id', None)
             site = trailer.get('site', None)
-            if site == "youtube": trailer = 'https://youtu.be/' + trailer_id
+            if site == "youtube":
+                trailer = f'https://youtu.be/{trailer_id}'
         description = json.get('description', 'N/A').replace('<i>', '').replace('</i>', '').replace('<br>', '')
-        msg += shorten(description, info) 
+        msg += shorten(description, info)
         image = json.get('bannerImage', None)
         if trailer:
             buttons = [
@@ -209,17 +217,22 @@ def character(update: Update, _):
         return
     search = search[1]
     variables = {'query': search}
-    json = requests.post(url, json={'query': character_query, 'variables': variables}).json()['data'].get('Character', None)
-    if json:
+    if (
+        json := requests.post(
+            url, json={'query': character_query, 'variables': variables}
+        )
+        .json()['data']
+        .get('Character', None)
+    ):
         msg = f"*{json.get('name').get('full')}*(`{json.get('name').get('native')}`)\n"
         description = f"{json['description']}"
         site_url = json.get('siteUrl')
         msg += shorten(description, site_url)
-        image = json.get('image', None)
-        if image:
+        if image := json.get('image', None):
             image = image.get('large')
             update.effective_message.reply_photo(photo = image, caption = msg, parse_mode=ParseMode.MARKDOWN)
-        else: update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
+        else:
+            update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
 
 @run_async
 def manga(update: Update, _):
@@ -367,9 +380,7 @@ def site_search(update: Update, site: str):
         search_url = f"https://animekaizoku.com/?s={search_query}"
         html_text = requests.get(search_url).text
         soup = bs4.BeautifulSoup(html_text, "html.parser")
-        search_result = soup.find_all("h2", {'class': "post-title"})
-
-        if search_result:
+        if search_result := soup.find_all("h2", {'class': "post-title"}):
             result = f"<b>Search results for</b> <code>{html.escape(search_query)}</code> <b>on</b> <code>AnimeKaizoku</code>: \n"
             for entry in search_result:
                 post_link = entry.a['href']

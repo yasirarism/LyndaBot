@@ -18,26 +18,19 @@ from lynda.modules.log_channel import loggable
 def check_user(user_id: int, context: CallbackContext, chat: Chat) -> Optional[str]:
     bot = context.bot
     if not user_id:
-        reply = "You don't seem to be referring to a user."
-        return reply
-
+        return "You don't seem to be referring to a user."
     try:
         member = chat.get_member(user_id)
     except BadRequest as excp:
         if excp.message == "User not found":
-            reply = "I can't seem to find this user"
-            return reply
+            return "I can't seem to find this user"
         else:
             raise
 
     if user_id == bot.id:
-        reply = "I'm not gonna MUTE myself, How high are you?"
-        return reply
-
+        return "I'm not gonna MUTE myself, How high are you?"
     if is_user_admin(chat, user_id, member) or user_id in SARDEGNA_USERS:
-        reply = "I really wish I could mute admins...Perhaps a Punch?"
-        return reply
-
+        return "I really wish I could mute admins...Perhaps a Punch?"
     return None
 
 
@@ -54,9 +47,7 @@ def mute(update: Update, context: CallbackContext) -> str:
     message = update.effective_message
 
     user_id, reason = extract_user_and_text(message, args)
-    reply = check_user(user_id, bot, chat)
-
-    if reply:
+    if reply := check_user(user_id, bot, chat):
         message.reply_text(reply)
         return ""
 
@@ -109,28 +100,27 @@ def unmute(update: Update, context: CallbackContext) -> str:
             "This user isn't even in the chat, unmuting them won't make them talk more than they "
             "already do!")
 
-    else:
-        if (member.can_send_messages
+    elif (member.can_send_messages
                 and member.can_send_media_messages
                 and member.can_send_other_messages
                 and member.can_add_web_page_previews):
-            message.reply_text("This user already has the right to speak.")
-        else:
-            bot.restrict_chat_member(chat.id, int(user_id),
-                                     can_send_messages=True,
-                                     can_send_media_messages=True,
-                                     can_send_other_messages=True,
-                                     can_add_web_page_previews=True)
-            bot.sendMessage(
-                chat.id,
-                f"I shall allow <b>{html.escape(member.user.first_name)}</b> to text!",
-                parse_mode=ParseMode.HTML)
-            user = update.effective_user
-            return (
-                f"<b>{html.escape(chat.title)}:</b>\n"
-                f"#UNMUTE\n"
-                f"<b>Admin:</b> {mention_html(user.id, user.first_name)}\n"
-                f"<b>User:</b> {mention_html(member.user.id, member.user.first_name)}")
+        message.reply_text("This user already has the right to speak.")
+    else:
+        bot.restrict_chat_member(chat.id, int(user_id),
+                                 can_send_messages=True,
+                                 can_send_media_messages=True,
+                                 can_send_other_messages=True,
+                                 can_add_web_page_previews=True)
+        bot.sendMessage(
+            chat.id,
+            f"I shall allow <b>{html.escape(member.user.first_name)}</b> to text!",
+            parse_mode=ParseMode.HTML)
+        user = update.effective_user
+        return (
+            f"<b>{html.escape(chat.title)}:</b>\n"
+            f"#UNMUTE\n"
+            f"<b>Admin:</b> {mention_html(user.id, user.first_name)}\n"
+            f"<b>User:</b> {mention_html(member.user.id, member.user.first_name)}")
     return ""
 
 
@@ -148,9 +138,7 @@ def temp_mute(update: Update, context: CallbackContext) -> str:
     message = update.effective_message
 
     user_id, reason = extract_user_and_text(message, args)
-    reply = check_user(user_id, bot, chat)
-
-    if reply:
+    if reply := check_user(user_id, bot, chat):
         message.reply_text(reply)
         return ""
 

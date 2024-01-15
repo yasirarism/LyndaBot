@@ -32,10 +32,9 @@ def set_user(user_id, username):
         
         
 def get_user(user_id):
-    user = SESSION.query(LastFMUsers).get(str(user_id))
-    rep = ""
-    if user:
+    if user := SESSION.query(LastFMUsers).get(str(user_id)):
         rep = str(user.username)
-        
+    else:
+        rep = ""
     SESSION.close()
     return rep

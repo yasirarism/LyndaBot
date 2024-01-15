@@ -85,20 +85,15 @@ def new_fed(update: Update, context: CallbackContext):
             return
 
         message.reply_text(
-            "*You have succeeded in creating a new federation!*"
-            "\nName: `{}`"
-            "\nID: `{}`"
-            "\n\nUse the command below to join the federation:"
-            "\n`/joinfed {}`".format(
-                fed_name,
-                fed_id,
-                fed_id),
-            parse_mode=ParseMode.MARKDOWN)
+            f"*You have succeeded in creating a new federation!*\nName: `{fed_name}`\nID: `{fed_id}`\n\nUse the command below to join the federation:\n`/joinfed {fed_id}`",
+            parse_mode=ParseMode.MARKDOWN,
+        )
         try:
-            context.bot.send_message(GBAN_LOGS,
-                            "New Federation: <b>{}</b>\nID: <pre>{}</pre>".format(fed_name,
-                                                                                fed_id),
-                            parse_mode=ParseMode.HTML)
+            context.bot.send_message(
+                GBAN_LOGS,
+                f"New Federation: <b>{fed_name}</b>\nID: <pre>{fed_id}</pre>",
+                parse_mode=ParseMode.HTML,
+            )
         except BaseException:
             LOGGER.warning("Cannot send a message to GBAN_LOGS")
     else:
@@ -139,14 +134,23 @@ def del_fed(update: Update, context: CallbackContext):
         return
 
     message.reply_text(
-        "You sure you want to delete your federation? This cannot be reverted, you will lose your entire ban list, and '{}' will be permanently lost.".format(
-            getinfo['fname']), reply_markup=InlineKeyboardMarkup(
+        f"You sure you want to delete your federation? This cannot be reverted, you will lose your entire ban list, and '{getinfo['fname']}' will be permanently lost.",
+        reply_markup=InlineKeyboardMarkup(
             [
                 [
                     InlineKeyboardButton(
-                        text="⚠️ Delete Federation ⚠️", callback_data="rmfed_{}".format(fed_id))], [
-                InlineKeyboardButton(
-                    text="Cancel", callback_data="rmfed_cancel")]]))
+                        text="⚠️ Delete Federation ⚠️",
+                        callback_data=f"rmfed_{fed_id}",
+                    )
+                ],
+                [
+                    InlineKeyboardButton(
+                        text="Cancel", callback_data="rmfed_cancel"
+                    )
+                ],
+            ]
+        ),
+    )
 
 
 @run_async
@@ -168,9 +172,7 @@ def fed_chat(update: Update, _):
     chat = update.effective_chat
     info = sql.get_fed_info(fed_id)
 
-    text = "This group is part of the following federation:"
-    text += "\n{} (ID: <code>{}</code>)".format(info['fname'], fed_id)
-
+    text = f"This group is part of the following federation:\n{info['fname']} (ID: <code>{fed_id}</code>)"
     message.reply_text(text, parse_mode=ParseMode.HTML)
 
 
@@ -214,14 +216,11 @@ def join_fed(update: Update, context: CallbackContext):
         if get_fedlog and eval(get_fedlog):
             context.bot.send_message(
                 get_fedlog,
-                "Chat *{}* has joined the federation *{}*".format(
-                    chat.title,
-                    getfed['fname']),
-                parse_mode="markdown")
+                f"Chat *{chat.title}* has joined the federation *{getfed['fname']}*",
+                parse_mode="markdown",
+            )
 
-        message.reply_text(
-            "This group has joined the federation: {}!".format(
-                getfed['fname']))
+        message.reply_text(f"This group has joined the federation: {getfed['fname']}!")
 
 
 @run_async
@@ -244,12 +243,14 @@ def leave_fed(update: Update, context: CallbackContext):
             get_fedlog = sql.get_fed_log(fed_id)
             if get_fedlog and eval(get_fedlog):
                 context.bot.send_message(
-                    get_fedlog, "Chat *{}* has left the federation *{}*".format(
-                        chat.title, fed_info['fname']), parse_mode="markdown")
+                    get_fedlog,
+                    f"Chat *{chat.title}* has left the federation *{fed_info['fname']}*",
+                    parse_mode="markdown",
+                )
             send_message(
                 message,
-                "This group has left the federation {}!".format(
-                    fed_info['fname']))
+                f"This group has left the federation {fed_info['fname']}!",
+            )
         else:
             message.reply_text(
                 "How can you leave a federation that you never joined?!")
@@ -305,8 +306,7 @@ def user_join_fed(update: Update, context: CallbackContext):
             message.reply_text(
                 "I already am a federation admin in all federations!")
             return
-        res = sql.user_join_fed(fed_id, user_id)
-        if res:
+        if res := sql.user_join_fed(fed_id, user_id):
             message.reply_text("Successfully Promoted!")
         else:
             message.reply_text("Failed to promote!")
@@ -358,8 +358,7 @@ def user_demote_fed(update: Update, context: CallbackContext):
                 "I cannot demote people who are not federation admins!")
             return
 
-        res = sql.user_demote_fed(fed_id, user_id)
-        if res:
+        if res := sql.user_demote_fed(fed_id, user_id):
             message.reply_text("Demoted from a Fed Admin!")
         else:
             message.reply_text("Demotion failed!")
@@ -371,11 +370,10 @@ def user_demote_fed(update: Update, context: CallbackContext):
 
 @run_async
 def fed_info(update: Update, context: CallbackContext):
-    args = context.args
     chat = update.effective_chat
     user = update.effective_user
     message = update.effective_message
-    if args:
+    if args := context.args:
         fed_id = args[0]
     else:
         fed_id = sql.get_fed_id(chat.id)
@@ -392,7 +390,7 @@ def fed_info(update: Update, context: CallbackContext):
 
     owner = context.bot.get_chat(info['owner'])
     try:
-        owner_name = owner.first_name + " " + owner.last_name
+        owner_name = f"{owner.first_name} {owner.last_name}"
     except BaseException as e:
         print(e)
         owner_name = owner.first_name
@@ -404,16 +402,14 @@ def fed_info(update: Update, context: CallbackContext):
     chat = update.effective_chat
     info = sql.get_fed_info(fed_id)
 
-    text = "<b>ℹ️ Federation Information:</b>"
-    text += "\nFedID: <code>{}</code>".format(fed_id)
-    text += "\nName: {}".format(info['fname'])
-    text += "\nCreator: {}".format(mention_html(owner.id, owner_name))
-    text += "\nAll Admins: <code>{}</code>".format(TotalAdminFed)
+    text = f"<b>ℹ️ Federation Information:</b>\nFedID: <code>{fed_id}</code>"
+    text += f"\nName: {info['fname']}"
+    text += f"\nCreator: {mention_html(owner.id, owner_name)}"
+    text += f"\nAll Admins: <code>{TotalAdminFed}</code>"
     getfban = sql.get_all_fban_users(fed_id)
-    text += "\nTotal banned users: <code>{}</code>".format(len(getfban))
+    text += f"\nTotal banned users: <code>{len(getfban)}</code>"
     getfchat = sql.all_fed_chats(fed_id)
-    text += "\nNumber of groups in this federation: <code>{}</code>".format(
-        len(getfchat))
+    text += f"\nNumber of groups in this federation: <code>{len(getfchat)}</code>"
 
     message.reply_text(text, parse_mode=ParseMode.HTML)
 
@@ -444,14 +440,13 @@ def fed_admin(update: Update, context: CallbackContext):
     chat = update.effective_chat
     info = sql.get_fed_info(fed_id)
 
-    text = "<b>Federation Admin {}:</b>\n\n".format(info['fname'])
-    text += "👑 Owner:\n"
+    text = f"<b>Federation Admin {info['fname']}:</b>\n\n" + "👑 Owner:\n"
     owner = context.bot.get_chat(info['owner'])
     try:
-        owner_name = owner.first_name + " " + owner.last_name
+        owner_name = f"{owner.first_name} {owner.last_name}"
     except BaseException:
         owner_name = owner.first_name
-    text += " - {}\n".format(mention_html(owner.id, owner_name))
+    text += f" - {mention_html(owner.id, owner_name)}\n"
 
     members = sql.all_fed_members(fed_id)
     if len(members) == 0:
@@ -460,7 +455,7 @@ def fed_admin(update: Update, context: CallbackContext):
         text += "\n🔱 Admin:\n"
         for x in members:
             user = context.bot.get_chat(x)
-            text += " - {}\n".format(mention_html(user.id, user.first_name))
+            text += f" - {mention_html(user.id, user.first_name)}\n"
 
     message.reply_text(text, parse_mode=ParseMode.HTML)
 

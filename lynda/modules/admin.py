@@ -203,31 +203,25 @@ def set_title(update: Update, context: CallbackContext):
 @user_admin
 @loggable
 def pin(update: Update, context: CallbackContext) -> str:
-    args = context.args
-    user = update.effective_user
     chat = update.effective_chat
 
-    is_group = chat.type != "private" and chat.type != "channel"
+    is_group = chat.type not in ["private", "channel"]
     prev_message = update.effective_message.reply_to_message
 
-    is_silent = True
-    if len(args) >= 1:
-        is_silent = not (args[0].lower() == 'notify' or args[0].lower() == 'loud' or args[0].lower() == 'violent')
-
     if prev_message and is_group:
+        args = context.args
+        is_silent = (
+            args[0].lower() not in ['notify', 'loud', 'violent']
+            if len(args) >= 1
+            else True
+        )
         try:
             context.bot.pinChatMessage(chat.id, prev_message.message_id, disable_notification=is_silent)
         except BadRequest as excp:
-            if excp.message == "Chat_not_modified":
-                pass
-            else:
+            if excp.message != "Chat_not_modified":
                 raise
-        log_message = (
-            f"<b>{html.escape(chat.title)}:</b>\n"
-            f"#PINNED\n"
-            f"<b>Admin:</b> {mention_html(user.id, user.first_name)}")
-
-        return log_message
+        user = update.effective_user
+        return f"<b>{html.escape(chat.title)}:</b>\n#PINNED\n<b>Admin:</b> {mention_html(user.id, user.first_name)}"
 
 
 @run_async
@@ -242,17 +236,10 @@ def unpin(update: Update, context: CallbackContext) -> str:
     try:
         context.bot.unpinChatMessage(chat.id)
     except BadRequest as excp:
-        if excp.message == "Chat_not_modified":
-            pass
-        else:
+        if excp.message != "Chat_not_modified":
             raise
 
-    log_message = (
-        f"<b>{html.escape(chat.title)}:</b>\n"
-        f"#UNPINNED\n"
-        f"<b>Admin:</b> {mention_html(user.id, user.first_name)}")
-
-    return log_message
+    return f"<b>{html.escape(chat.title)}:</b>\n#UNPINNED\n<b>Admin:</b> {mention_html(user.id, user.first_name)}"
 
 
 @run_async
@@ -301,7 +288,7 @@ def adminlist(update: Update, context: CallbackContext):
 
 
 def __chat_settings__(chat_id, user_id):
-    return "You are *admin*: `{}`".format(dispatcher.bot.get_chat_member(chat_id, user_id).status in ("administrator", "creator"))
+    return f'You are *admin*: `{dispatcher.bot.get_chat_member(chat_id, user_id).status in ("administrator", "creator")}`'
 
 
 __help__ = """

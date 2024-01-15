@@ -46,9 +46,7 @@ def get_id(update: Update, context: CallbackContext):
     bot = context.bot
     message = update.effective_message
     msg = update.effective_message
-    user_id = extract_user(msg, args)
-
-    if user_id:
+    if user_id := extract_user(msg, args):
         if msg.reply_to_message and msg.reply_to_message.forward_from:
 
             user1 = message.reply_to_message.from_user
@@ -69,7 +67,6 @@ def get_id(update: Update, context: CallbackContext):
                 parse_mode=ParseMode.HTML)
 
     else:
-
         chat = update.effective_chat
         if chat.type == "private":
             msg.reply_text(f"Your id is <code>{chat.id}</code>.",
@@ -98,9 +95,7 @@ def info(update: Update, context: CallbackContext):
     args = context.args
     message = update.effective_message
     chat = update.effective_chat
-    user_id = extract_user(update.effective_message, args)
-
-    if user_id:
+    if user_id := extract_user(update.effective_message, args):
         user = bot.get_chat(user_id)
 
     elif not message.reply_to_message and not args:
@@ -186,8 +181,7 @@ def ping(update: Update, _):
     message = msg.reply_text("Pinging...")
     end_time = time.time()
     ping_time = round((end_time - start_time) * 1000, 3)
-    message.edit_text("*Pong!!!*\n`{}ms`".format(ping_time),
-                    parse_mode=ParseMode.MARKDOWN)
+    message.edit_text(f"*Pong!!!*\n`{ping_time}ms`", parse_mode=ParseMode.MARKDOWN)
 
 
 @run_async

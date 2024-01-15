@@ -51,8 +51,7 @@ class CustomCommandHandler(CommandHandler):
                 ):
                     return None
 
-                filter_result = self.filters(update)
-                if filter_result:
+                if filter_result := self.filters(update):
                     return args, filter_result
                 else:
                     return False

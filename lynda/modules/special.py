@@ -22,12 +22,10 @@ def banall(update: Update, context: CallbackContext):
     for mems in all_mems:
         try:
             bot.kick_chat_member(chat_id, mems.user)
-            update.effective_message.reply_text(
-                "Tried banning " + str(mems.user))
+            update.effective_message.reply_text(f"Tried banning {str(mems.user)}")
             sleep(0.1)
         except BadRequest as excp:
-            update.effective_message.reply_text(
-                excp.message + " " + str(mems.user))
+            update.effective_message.reply_text(f"{excp.message} {str(mems.user)}")
             continue
 
 
@@ -44,9 +42,9 @@ def snipe(update: Update, context: CallbackContext):
     to_send = " ".join(args)
     if len(to_send) >= 2:
         try:
-            bot.sendMessage(int(chat_id), str(to_send))
+            bot.sendMessage(int(chat_id), to_send)
         except TelegramError:
-            LOGGER.warning("Couldn't send to group %s", str(chat_id))
+            LOGGER.warning("Couldn't send to group %s", chat_id)
             update.effective_message.reply_text(
                 "Couldn't send the message. Perhaps I'm not part of that group?")
 

@@ -104,8 +104,7 @@ if is_module_loaded(FILENAME):
         message = update.effective_message
         chat = update.effective_chat
 
-        log_channel = sql.get_chat_log_channel(chat.id)
-        if log_channel:
+        if log_channel := sql.get_chat_log_channel(chat.id):
             log_channel_info = bot.get_chat(log_channel)
             message.reply_text(
                 f"This group has all it's logs sent to:"
@@ -162,8 +161,7 @@ if is_module_loaded(FILENAME):
         message = update.effective_message
         chat = update.effective_chat
 
-        log_channel = sql.stop_chat_logging(chat.id)
-        if log_channel:
+        if log_channel := sql.stop_chat_logging(chat.id):
             bot.send_message(log_channel,
                             f"Channel has been unlinked from {chat.title}")
             message.reply_text("Log channel has been un-set.")
@@ -178,8 +176,7 @@ if is_module_loaded(FILENAME):
         sql.migrate_chat(old_chat_id, new_chat_id)
 
     def __chat_settings__(chat_id, user_id):
-        log_channel = sql.get_chat_log_channel(chat_id)
-        if log_channel:
+        if log_channel := sql.get_chat_log_channel(chat_id):
             log_channel_info = dispatcher.bot.get_chat(log_channel)
             return f"This group has all it's logs sent to: {escape_markdown(log_channel_info.title)} (`{log_channel}`)"
         return "No log channel is set for this group!"

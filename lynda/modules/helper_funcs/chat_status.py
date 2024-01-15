@@ -317,8 +317,11 @@ def user_can_ban(func):
     def user_is_banhammer(update: Update, context: CallbackContext, *args, **kwargs):
         user = update.effective_user.id
         member = update.effective_chat.get_member(user)
-        if not (member.can_restrict_members or
-                member.status == "creator") and not user in SUDO_USERS:
+        if (
+            not member.can_restrict_members
+            and member.status != "creator"
+            and user not in SUDO_USERS
+        ):
             update.effective_message.reply_text(
                 "Sorry son, but you're not worthy to wield the banhammer.")
             return ""

@@ -18,14 +18,13 @@ ELEVATED_USERS_FILE = os.path.join(os.getcwd(), 'lynda/elevated_users.json')
 def check_user_id(user_id: int, context: CallbackContext) -> Optional[str]:
     bot = context.bot
     if not user_id:
-        reply = "That...is a chat! baka ka omae?"
+        return "That...is a chat! baka ka omae?"
 
     elif user_id == bot.id:
-        reply = "This does not work that way."
+        return "This does not work that way."
 
     else:
-        reply = None
-    return reply
+        return None
 
 
 # I added extra new lines
@@ -63,8 +62,7 @@ def addsudo(update: Update, context: CallbackContext) -> str:
     user_member = bot.getChat(user_id)
     rt = ""
 
-    reply = check_user_id(user_id, bot)
-    if reply:
+    if reply := check_user_id(user_id, bot):
         message.reply_text(reply)
         return ""
 
@@ -92,9 +90,8 @@ def addsudo(update: Update, context: CallbackContext) -> str:
         json.dump(data, outfile, indent=4)
 
     update.effective_message.reply_text(
-        rt +
-        "\nSuccessfully set Nation level of {} to Royal!".format(
-            user_member.first_name))
+        f"{rt}\nSuccessfully set Nation level of {user_member.first_name} to Royal!"
+    )
 
     log_message = (
         f"#SUDO\n"
@@ -102,7 +99,7 @@ def addsudo(update: Update, context: CallbackContext) -> str:
         f"<b>User:</b> {mention_html(user_member.id, user_member.first_name)}")
 
     if chat.type != 'private':
-        log_message = f"<b>{html.escape(chat.title)}:</b>\n" + log_message
+        log_message = f"<b>{html.escape(chat.title)}:</b>\n{log_message}"
 
     return log_message
 
@@ -121,8 +118,7 @@ def addsupport(update: Update, context: CallbackContext) -> str:
     user_member = bot.getChat(user_id)
     rt = ""
 
-    reply = check_user_id(user_id, bot)
-    if reply:
+    if reply := check_user_id(user_id, bot):
         message.reply_text(reply)
         return ""
 
@@ -150,7 +146,8 @@ def addsupport(update: Update, context: CallbackContext) -> str:
         json.dump(data, outfile, indent=4)
 
     update.effective_message.reply_text(
-        rt + f"\n{user_member.first_name} was added as a Sakura Nation!")
+        f"{rt}\n{user_member.first_name} was added as a Sakura Nation!"
+    )
 
     log_message = (
         f"#SUPPORT\n"
@@ -158,7 +155,7 @@ def addsupport(update: Update, context: CallbackContext) -> str:
         f"<b>User:</b> {mention_html(user_member.id, user_member.first_name)}")
 
     if chat.type != 'private':
-        log_message = f"<b>{html.escape(chat.title)}:</b>\n" + log_message
+        log_message = f"<b>{html.escape(chat.title)}:</b>\n{log_message}"
 
     return log_message
 
@@ -177,8 +174,7 @@ def addwhitelist(update: Update, context: CallbackContext) -> str:
     user_member = bot.getChat(user_id)
     rt = ""
 
-    reply = check_user_id(user_id, bot)
-    if reply:
+    if reply := check_user_id(user_id, bot):
         message.reply_text(reply)
         return ""
 
@@ -206,7 +202,8 @@ def addwhitelist(update: Update, context: CallbackContext) -> str:
         json.dump(data, outfile, indent=4)
 
     update.effective_message.reply_text(
-        rt + f"\nSuccessfully promoted {user_member.first_name} to a Neptunia Nation!")
+        f"{rt}\nSuccessfully promoted {user_member.first_name} to a Neptunia Nation!"
+    )
 
     log_message = (
         f"#WHITELIST\n"
@@ -214,7 +211,7 @@ def addwhitelist(update: Update, context: CallbackContext) -> str:
         f"<b>User:</b> {mention_html(user_member.id, user_member.first_name)}")
 
     if chat.type != 'private':
-        log_message = f"<b>{html.escape(chat.title)}:</b>\n" + log_message
+        log_message = f"<b>{html.escape(chat.title)}:</b>\n{log_message}"
 
     return log_message
 
@@ -233,8 +230,7 @@ def addSardegna(update: Update, context: CallbackContext) -> str:
     user_member = bot.getChat(user_id)
     rt = ""
 
-    reply = check_user_id(user_id, bot)
-    if reply:
+    if reply := check_user_id(user_id, bot):
         message.reply_text(reply)
         return ""
 
@@ -267,7 +263,8 @@ def addSardegna(update: Update, context: CallbackContext) -> str:
         json.dump(data, outfile, indent=4)
 
     update.effective_message.reply_text(
-        rt + f"\nSuccessfully promoted {user_member.first_name} to a Sardegna Nation!")
+        f"{rt}\nSuccessfully promoted {user_member.first_name} to a Sardegna Nation!"
+    )
 
     log_message = (
         f"#SARDEGNA\n"
@@ -275,7 +272,7 @@ def addSardegna(update: Update, context: CallbackContext) -> str:
         f"<b>User:</b> {mention_html(user_member.id, user_member.first_name)}")
 
     if chat.type != 'private':
-        log_message = f"<b>{html.escape(chat.title)}:</b>\n" + log_message
+        log_message = f"<b>{html.escape(chat.title)}:</b>\n{log_message}"
 
     return log_message
 
@@ -289,8 +286,7 @@ def removesudo(update: Update, context: CallbackContext) -> str:
     message = update.effective_message
     user_id = extract_user(message, args)
     user_member = bot.getChat(user_id)
-    reply = check_user_id(user_id, bot)
-    if reply:
+    if reply := check_user_id(user_id, bot):
         message.reply_text(reply)
         return ""
     with open(ELEVATED_USERS_FILE, 'r') as infile:
@@ -308,8 +304,7 @@ def removesudo(update: Update, context: CallbackContext) -> str:
             f"<b>User:</b> {mention_html(user_member.id, user_member.first_name)}")
         chat = update.effective_chat
         if chat.type != 'private':
-            log_message = "<b>{}:</b>\n".format(
-                html.escape(chat.title)) + log_message
+            log_message = f"<b>{html.escape(chat.title)}:</b>\n{log_message}"
 
         return log_message
 
@@ -328,8 +323,7 @@ def removesupport(update: Update, context: CallbackContext) -> str:
     user_id = extract_user(message, args)
     user_member = bot.getChat(user_id)
 
-    reply = check_user_id(user_id, bot)
-    if reply:
+    if reply := check_user_id(user_id, bot):
         message.reply_text(reply)
         return ""
 
@@ -353,7 +347,7 @@ def removesupport(update: Update, context: CallbackContext) -> str:
         chat = update.effective_chat
 
         if chat.type != 'private':
-            log_message = f"<b>{html.escape(chat.title)}:</b>\n" + log_message
+            log_message = f"<b>{html.escape(chat.title)}:</b>\n{log_message}"
 
         return log_message
 
@@ -372,8 +366,7 @@ def removewhitelist(update: Update, context: CallbackContext) -> str:
     user_id = extract_user(message, args)
     user_member = bot.getChat(user_id)
 
-    reply = check_user_id(user_id, bot)
-    if reply:
+    if reply := check_user_id(user_id, bot):
         message.reply_text(reply)
         return ""
 
@@ -397,7 +390,7 @@ def removewhitelist(update: Update, context: CallbackContext) -> str:
         chat = update.effective_chat
 
         if chat.type != 'private':
-            log_message = f"<b>{html.escape(chat.title)}:</b>\n" + log_message
+            log_message = f"<b>{html.escape(chat.title)}:</b>\n{log_message}"
 
         return log_message
     else:
@@ -415,8 +408,7 @@ def removeSardegna(update: Update, context: CallbackContext) -> str:
     user_id = extract_user(message, args)
     user_member = bot.getChat(user_id)
 
-    reply = check_user_id(user_id, bot)
-    if reply:
+    if reply := check_user_id(user_id, bot):
         message.reply_text(reply)
         return ""
 
@@ -440,7 +432,7 @@ def removeSardegna(update: Update, context: CallbackContext) -> str:
         chat = update.effective_chat
 
         if chat.type != 'private':
-            log_message = f"<b>{html.escape(chat.title)}:</b>\n" + log_message
+            log_message = f"<b>{html.escape(chat.title)}:</b>\n{log_message}"
 
         return log_message
     else:

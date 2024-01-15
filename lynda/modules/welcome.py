@@ -118,32 +118,26 @@ def new_member(update: Update, context: CallbackContext):
                             f"#USER_JOINED\n"
                             f"Bot Owner just joined the chat")
 
-            # Welcome Devs
             elif new_mem.id in DEV_USERS:
                 update.effective_message.reply_text(
                     "Whoa! A member of the Eagle Union just joined!")
 
-            # Welcome Sudos
             elif new_mem.id in SUDO_USERS:
                 update.effective_message.reply_text(
                     "Huh! A Royal Nation just joined! Stay Alert!")
 
-            # Welcome Support
             elif new_mem.id in SUPPORT_USERS:
                 update.effective_message.reply_text(
                     "Huh! Someone with a Sakura Nation level just joined!")
 
-            # Welcome Whitelisted
             elif new_mem.id in SARDEGNA_USERS:
                 update.effective_message.reply_text(
                     "Oof! A Sardegna Nation just joined!")
 
-            # Welcome Sardegnas
             elif new_mem.id in WHITELIST_USERS:
                 update.effective_message.reply_text(
                     "Oof! A Neptunia Nation just joined!")
 
-            # Welcome yourself
             elif new_mem.id == bot.id:
                 update.effective_message.reply_text("Watashi ga kitta!")
 
@@ -172,7 +166,7 @@ def new_member(update: Update, context: CallbackContext):
                     mention = mention_markdown(
                         new_mem.id, escape_markdown(first_name))
                     if new_mem.username:
-                        username = "@" + escape_markdown(new_mem.username)
+                        username = f"@{escape_markdown(new_mem.username)}"
                     else:
                         username = mention
 
@@ -264,8 +258,7 @@ def new_member(update: Update, context: CallbackContext):
         if welcome_bool:
             sent = send(update, res, keyboard, backup_message)
 
-            prev_welc = sql.get_clean_pref(chat.id)
-            if prev_welc:
+            if prev_welc := sql.get_clean_pref(chat.id):
                 try:
                     bot.delete_message(chat.id, prev_welc)
                 except BadRequest:
@@ -315,11 +308,9 @@ def left_member(update: Update, context: CallbackContext):
         return
 
     if should_goodbye:
-        left_mem = update.effective_message.left_chat_member
-        if left_mem:
+        if left_mem := update.effective_message.left_chat_member:
             if spam_watch is None:
-                sw_ban = spam_watch.get_ban(left_mem.id)
-                if sw_ban:
+                if sw_ban := spam_watch.get_ban(left_mem.id):
                     return
             # Ignore bot being kicked
             if left_mem.id == bot.id:
@@ -356,7 +347,7 @@ def left_member(update: Update, context: CallbackContext):
                 count = chat.get_members_count()
                 mention = mention_markdown(left_mem.id, first_name)
                 if left_mem.username:
-                    username = "@" + escape_markdown(left_mem.username)
+                    username = f"@{escape_markdown(left_mem.username)}"
                 else:
                     username = mention
 
@@ -416,13 +407,12 @@ def welcome(update: Update, context: CallbackContext):
 
                 send(update, welcome_m, keyboard, sql.DEFAULT_WELCOME)
 
-        else:
-            if noformat:
-                ENUM_FUNC_MAP[welcome_type](chat.id, welcome_m)
+        elif noformat:
+            ENUM_FUNC_MAP[welcome_type](chat.id, welcome_m)
 
-            else:
-                ENUM_FUNC_MAP[welcome_type](
-                    chat.id, welcome_m, parse_mode=ParseMode.MARKDOWN)
+        else:
+            ENUM_FUNC_MAP[welcome_type](
+                chat.id, welcome_m, parse_mode=ParseMode.MARKDOWN)
 
     elif len(args) >= 1:
         if args[0].lower() in ("on", "yes"):
@@ -466,13 +456,12 @@ def goodbye(update: Update, context: CallbackContext):
 
                 send(update, goodbye_m, keyboard, sql.DEFAULT_GOODBYE)
 
-        else:
-            if noformat:
-                ENUM_FUNC_MAP[goodbye_type](chat.id, goodbye_m)
+        elif noformat:
+            ENUM_FUNC_MAP[goodbye_type](chat.id, goodbye_m)
 
-            else:
-                ENUM_FUNC_MAP[goodbye_type](
-                    chat.id, goodbye_m, parse_mode=ParseMode.MARKDOWN)
+        else:
+            ENUM_FUNC_MAP[goodbye_type](
+                chat.id, goodbye_m, parse_mode=ParseMode.MARKDOWN)
 
     elif len(args) >= 1:
         if args[0].lower() in ("on", "yes"):
@@ -626,8 +615,7 @@ def clean_welcome(update: Update, context: CallbackContext) -> str:
     user = update.effective_user
 
     if not args:
-        clean_pref = sql.get_clean_pref(chat.id)
-        if clean_pref:
+        if clean_pref := sql.get_clean_pref(chat.id):
             update.effective_message.reply_text(
                 "I should be deleting welcome messages up to two days old.")
         else:
@@ -684,8 +672,7 @@ def user_button(update: Update, context: CallbackContext):
                 member_dict["keyboard"],
                 member_dict["backup_message"])
 
-            prev_welc = sql.get_clean_pref(chat.id)
-            if prev_welc:
+            if prev_welc := sql.get_clean_pref(chat.id):
                 try:
                     bot.delete_message(chat.id, prev_welc)
                 except BadRequest:
@@ -769,8 +756,7 @@ def __migrate__(old_chat_id, new_chat_id):
 def __chat_settings__(chat_id, _user_id):
     welcome_pref, _, _ = sql.get_welc_pref(chat_id)
     goodbye_pref, _, _ = sql.get_gdbye_pref(chat_id)
-    return "This chat has it's welcome preference set to `{}`.\n" \
-           "It's goodbye preference is `{}`.".format(welcome_pref, goodbye_pref)
+    return f"This chat has it's welcome preference set to `{welcome_pref}`.\nIt's goodbye preference is `{goodbye_pref}`."
 
 
 __help__ = """

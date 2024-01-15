@@ -13,9 +13,8 @@ import lynda.modules.sql.last_fm_sql as sql
 
 @run_async
 def set_user(update: Update, context: CallbackContext):
-    args = context.args
     msg = update.effective_message
-    if args:
+    if args := context.args:
         user = update.effective_user.id
         username = " ".join(args)
         sql.set_user(user, username)

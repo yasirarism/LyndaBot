@@ -145,7 +145,7 @@ def filters(update: Update, _):
         is_video,
         buttons)
 
-    msg.reply_text("Handler '{}' added!".format(keyword))
+    msg.reply_text(f"Handler '{keyword}' added!")
     raise DispatcherHandlerStop
 
 
@@ -245,8 +245,7 @@ def reply_filter(update: Update, context: CallbackContext):
 
 
 def __stats__():
-    return "{} filters, across {} chats.".format(
-        sql.num_filters(), sql.num_chats())
+    return f"{sql.num_filters()} filters, across {sql.num_chats()} chats."
 
 
 def __migrate__(old_chat_id, new_chat_id):
@@ -255,8 +254,7 @@ def __migrate__(old_chat_id, new_chat_id):
 
 def __chat_settings__(chat_id, _user_id):
     cust_filters = sql.get_chat_triggers(chat_id)
-    return "There are currently `{}` custom filters here.".format(
-        len(cust_filters))
+    return f"There are currently `{len(cust_filters)}` custom filters here."
 
 
 __help__ = """

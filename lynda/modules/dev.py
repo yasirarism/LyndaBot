@@ -14,9 +14,8 @@ from lynda.modules.helper_funcs.chat_status import dev_plus
 @run_async
 @dev_plus
 def leave(update: Update, context: CallbackContext):
-    args = context.args
     message = update.effective_message
-    if args:
+    if args := context.args:
         chat_id = str(args[0])
         try:
             context.bot.leave_chat(int(chat_id))

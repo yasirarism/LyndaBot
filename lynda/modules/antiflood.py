@@ -70,7 +70,6 @@ def check_flood(update: Update, context: CallbackContext) -> str:
 def set_flood(update: Update, context: CallbackContext) -> str:
     chat = update.effective_chat
     user = update.effective_user
-    message = update.effective_message
     args = context.args
     log_message = ""
 
@@ -86,19 +85,22 @@ def set_flood(update: Update, context: CallbackContext) -> str:
 
         val = args[0].lower()
 
+        message = update.effective_message
         if val in ('off', 'no', '0'):
             sql.set_flood(chat.id, 0)
             message.reply_text(
-                "Antiflood has been disabled{}.".format(chat_name),
-                parse_mode=ParseMode.HTML)
+                f"Antiflood has been disabled{chat_name}.",
+                parse_mode=ParseMode.HTML,
+            )
 
         elif val.isdigit():
             amount = int(val)
             if amount <= 0:
                 sql.set_flood(chat.id, 0)
                 message.reply_text(
-                    "Antiflood has been disabled{}.".format(chat_name),
-                    parse_mode=ParseMode.HTML)
+                    f"Antiflood has been disabled{chat_name}.",
+                    parse_mode=ParseMode.HTML,
+                )
                 log_message = (
                     f"<b>{html.escape(chat.title)}:</b>\n"
                     f"#SETFLOOD\n"
@@ -111,8 +113,9 @@ def set_flood(update: Update, context: CallbackContext) -> str:
             else:
                 sql.set_flood(chat.id, amount)
                 message.reply_text(
-                    "Antiflood has been updated and set to {}{}".format(
-                        amount, chat_name), parse_mode=ParseMode.HTML)
+                    f"Antiflood has been updated and set to {amount}{chat_name}",
+                    parse_mode=ParseMode.HTML,
+                )
                 log_message = (
                     f"<b>{html.escape(chat.title)}:</b>\n"
                     f"#SETFLOOD\n"
@@ -161,7 +164,7 @@ def __chat_settings__(chat_id, _user_id):
     if limit == 0:
         return "*Not* currently enforcing flood control."
     else:
-        return "Antiflood is set to `{}` messages.".format(limit)
+        return f"Antiflood is set to `{limit}` messages."
 
 
 __help__ = """

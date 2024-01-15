@@ -44,11 +44,11 @@ def banme(update: Update, context: CallbackContext):
 @user_admin
 @loggable
 def ban(update: Update, context: CallbackContext) -> str:
-    args = context.args
     chat = update.effective_chat
     user = update.effective_user
     message = update.effective_message
     log_message = ""
+    args = context.args
     user_id, reason = extract_user_and_text(message, args)
     if not user_id:
         message.reply_text("I doubt that's a user.")
@@ -57,12 +57,11 @@ def ban(update: Update, context: CallbackContext) -> str:
     try:
         member = chat.get_member(user_id)
     except BadRequest as excp:
-        if excp.message == "User not found":
-            message.reply_text("Can't seem to find this person.")
-            return log_message
-        else:
+        if excp.message != "User not found":
             raise
 
+        message.reply_text("Can't seem to find this person.")
+        return log_message
     if user_id == context.bot.id:
         message.reply_text("Oh yeah, ban myself, noob!")
         return log_message
@@ -78,18 +77,16 @@ def ban(update: Update, context: CallbackContext) -> str:
         f"<b>Admin:</b> {mention_html(user.id, user.first_name)}\n"
         f"<b>User:</b> {mention_html(member.user.id, member.user.first_name)}")
     if reason:
-        log += "\n<b>Reason:</b> {}".format(reason)
+        log += f"\n<b>Reason:</b> {reason}"
 
     try:
         chat.kick_member(user_id)
         # bot.send_sticker(chat.id, BAN_STICKER)  # banhammer marie sticker
         context.bot.sendMessage(
             chat.id,
-            "Banned user {}.".format(
-                mention_html(
-                    member.user.id,
-                    member.user.first_name)),
-            parse_mode=ParseMode.HTML)
+            f"Banned user {mention_html(member.user.id, member.user.first_name)}.",
+            parse_mode=ParseMode.HTML,
+        )
         return log
 
     except BadRequest as excp:
@@ -132,12 +129,11 @@ def temp_ban(update: Update, context: CallbackContext) -> str:
     try:
         member = chat.get_member(user_id)
     except BadRequest as excp:
-        if excp.message == "User not found":
-            message.reply_text("I can't seem to find this user.")
-            return log_message
-        else:
+        if excp.message != "User not found":
             raise
 
+        message.reply_text("I can't seem to find this user.")
+        return log_message
     if user_id == context.bot.id:
         message.reply_text("I'm not gonna BAN myself, are you crazy?")
         return log_message
@@ -167,7 +163,7 @@ def temp_ban(update: Update, context: CallbackContext) -> str:
         f"<b>User:</b> {mention_html(member.user.id, member.user.first_name)}\n"
         f"<b>Time:</b> {time_val}")
     if reason:
-        log += "\n<b>Reason:</b> {}".format(reason)
+        log += f"\n<b>Reason:</b> {reason}"
 
     try:
         chat.kick_member(user_id, until_date=bantime)
@@ -217,12 +213,11 @@ def kick(update: Update, context: CallbackContext) -> str:
     try:
         member = chat.get_member(user_id)
     except BadRequest as excp:
-        if excp.message == "User not found":
-            message.reply_text("I can't seem to find this user.")
-            return log_message
-        else:
+        if excp.message != "User not found":
             raise
 
+        message.reply_text("I can't seem to find this user.")
+        return log_message
     if user_id == context.bot.id:
         message.reply_text("Yeahhh I'm not gonna do that.")
         return log_message
@@ -232,8 +227,7 @@ def kick(update: Update, context: CallbackContext) -> str:
             "I really wish I could put the ban tag on this user....")
         return log_message
 
-    res = chat.unban_member(user_id)  # unban on current user = kick
-    if res:
+    if res := chat.unban_member(user_id):
         # bot.send_sticker(chat.id, BAN_STICKER)  # banhammer marie sticker
         context.bot.sendMessage(
             chat.id,
@@ -266,9 +260,7 @@ def kickme(update: Update, _):
             "I wish I could... but you're an admin.")
         return
 
-    res = update.effective_chat.unban_member(
-        user_id)  # unban on current user = kick
-    if res:
+    if res := update.effective_chat.unban_member(user_id):
         update.effective_message.reply_text("No problem.")
     else:
         update.effective_message.reply_text("Huh? I can't :/")
@@ -296,12 +288,11 @@ def unban(update: Update, context: CallbackContext) -> str:
     try:
         member = chat.get_member(user_id)
     except BadRequest as excp:
-        if excp.message == "User not found":
-            message.reply_text("I can't seem to find this user.")
-            return log_message
-        else:
+        if excp.message != "User not found":
             raise
 
+        message.reply_text("I can't seem to find this user.")
+        return log_message
     if user_id == context.bot.id:
         message.reply_text("How would I unban myself if I wasn't here...?")
         return log_message
@@ -349,12 +340,11 @@ def selfunban(update: Update, context: CallbackContext) -> None:
     try:
         member = chat.get_member(user.id)
     except BadRequest as excp:
-        if excp.message == "User not found":
-            message.reply_text("I can't seem to find this user.")
-            return
-        else:
+        if excp.message != "User not found":
             raise
 
+        message.reply_text("I can't seem to find this user.")
+        return
     if is_user_in_chat(chat, user.id):
         message.reply_text("Aren't you already in the chat??")
         return
@@ -362,12 +352,7 @@ def selfunban(update: Update, context: CallbackContext) -> None:
     chat.unban_member(user.id)
     message.reply_text("Yep, I have unbanned you.")
 
-    log = (
-        f"<b>{html.escape(chat.title)}:</b>\n"
-        f"#UNBANNED\n"
-        f"<b>User:</b> {mention_html(member.user.id, member.user.first_name)}")
-
-    return log
+    return f"<b>{html.escape(chat.title)}:</b>\n#UNBANNED\n<b>User:</b> {mention_html(member.user.id, member.user.first_name)}"
 
 
 __help__ = """

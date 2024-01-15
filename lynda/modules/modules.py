@@ -27,7 +27,7 @@ def load(update: Update, _):
         parse_mode=ParseMode.HTML)
 
     try:
-        imported_module = importlib.import_module("lynda.modules." + text)
+        imported_module = importlib.import_module(f"lynda.modules.{text}")
     except Exception:
         load_messasge.edit_text("Does that module even exist?")
         return
@@ -79,8 +79,9 @@ def load(update: Update, _):
         USER_SETTINGS[imported_module.__mod_name__.lower()] = imported_module
 
     load_messasge.edit_text(
-        "Successfully loaded module : <b>{}</b>".format(text),
-        parse_mode=ParseMode.HTML)
+        f"Successfully loaded module : <b>{text}</b>",
+        parse_mode=ParseMode.HTML,
+    )
 
 
 @run_async
@@ -93,7 +94,7 @@ def unload(update: Update, _):
         parse_mode=ParseMode.HTML)
 
     try:
-        imported_module = importlib.import_module("lynda.modules." + text)
+        imported_module = importlib.import_module(f"lynda.modules.{text}")
     except Exception:
         unload_messasge.edit_text("Does that module even exist?")
         return

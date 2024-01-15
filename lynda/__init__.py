@@ -182,8 +182,7 @@ tg.MessageHandler = CustomMessageHandler
 
 
 def spamfilters(_text, user_id, _chat_id):
-    if int(user_id) in SPAMMERS:
-        print("This user is a spammer!")
-        return True
-    else:
+    if int(user_id) not in SPAMMERS:
         return False
+    print("This user is a spammer!")
+    return True

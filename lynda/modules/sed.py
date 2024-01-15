@@ -50,9 +50,7 @@ def separate_sed(sed_string):
     else:
         return replace, sed_string[start:], ""
 
-    flags = ""
-    if counter < len(sed_string):
-        flags = sed_string[counter:]
+    flags = sed_string[counter:] if counter < len(sed_string) else ""
     return replace, replace_with, flags.lower()
 
 
@@ -79,10 +77,8 @@ def sed(update: Update, _):
 
             if check and check.group(0).lower() == to_fix.lower():
                 update.effective_message.reply_to_message.reply_text(
-                    "Hey everyone, {} is trying to make "
-                    "me say stuff I don't wanna "
-                    "say!".format(
-                        update.effective_user.first_name))
+                    f"Hey everyone, {update.effective_user.first_name} is trying to make me say stuff I don't wanna say!"
+                )
                 return
 
             if 'i' in flags and 'g' in flags:
@@ -130,6 +126,7 @@ __mod_name__ = "Regex"
 
 
 SED_HANDLER = DisableAbleRegexHandler(
-    r's([{}]).*?\1.*'.format("".join(DELIMITERS)), sed, friendly="sed")
+    f's([{"".join(DELIMITERS)}]).*?\1.*', sed, friendly="sed"
+)
 
 dispatcher.add_handler(SED_HANDLER)

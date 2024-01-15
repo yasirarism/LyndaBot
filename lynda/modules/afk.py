@@ -19,13 +19,10 @@ AFK_REPLY_GROUP = 8
 @run_async
 def afk(update: Update, _):
     args = update.effective_message.text.split(None, 1)
-    reason = ""
-    if len(args) >= 2:
-        reason = args[1]
-
+    reason = args[1] if len(args) >= 2 else ""
     sql.set_afk(update.effective_user.id, reason)
     update.effective_message.reply_text(
-        "{} is away from keyboard !".format(update.effective_user.first_name)
+        f"{update.effective_user.first_name} is away from keyboard !"
     )
 
 
@@ -36,8 +33,7 @@ def no_longer_afk(update: Update, _):
     if not user:
         return
 
-    res = sql.rm_afk(user.id)
-    if res:
+    if res := sql.rm_afk(user.id):
         options = [
             "{} is here!",
             "{} is back!",
@@ -83,9 +79,9 @@ def reply_afk(update: Update, context: CallbackContext):
                 valid, reason = sql.check_afk_status(user_id)
                 if valid:
                     if not reason:
-                        res = "{} is AFK!".format(fst_name)
+                        res = f"{fst_name} is AFK!"
                     else:
-                        res = "{} is AFK!\nReason:\n{}".format(fst_name, reason)
+                        res = f"{fst_name} is AFK!\nReason:\n{reason}"
                     message.reply_text(res)
 
 

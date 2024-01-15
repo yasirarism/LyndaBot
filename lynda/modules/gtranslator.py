@@ -94,16 +94,16 @@ def totranslate(update: Update, _):
             if dest_lang is None:
                 detection = trl.detect(text)
                 tekstr = trl.translate(text, dest=source_lang)
-                return message.reply_text("Translated from `{}` to `{}`:\n`{}`".format(
-                    detection.lang, source_lang, tekstr.text), parse_mode=ParseMode.MARKDOWN)
+                return message.reply_text(
+                    f"Translated from `{detection.lang}` to `{source_lang}`:\n`{tekstr.text}`",
+                    parse_mode=ParseMode.MARKDOWN,
+                )
             else:
                 tekstr = trl.translate(text, dest=dest_lang, src=source_lang)
                 message.reply_text(
-                    "Translated from `{}` to `{}`:\n`{}`".format(
-                        source_lang,
-                        dest_lang,
-                        tekstr.text),
-                    parse_mode=ParseMode.MARKDOWN)
+                    f"Translated from `{source_lang}` to `{dest_lang}`:\n`{tekstr.text}`",
+                    parse_mode=ParseMode.MARKDOWN,
+                )
 
     except IndexError:
         update.effective_message.reply_text(

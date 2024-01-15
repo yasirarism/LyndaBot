@@ -66,13 +66,12 @@ def get(context, update, notename, show_none=True, no_format=False):
                         from_chat_id=MESSAGE_DUMP,
                         message_id=note.value)
                 except BadRequest as excp:
-                    if excp.message == "Message to forward not found":
-                        message.reply_text(
-                            "This message seems to have been lost - I'll remove it "
-                            "from your notes list.")
-                        sql.rm_note(chat_id, notename)
-                    else:
+                    if excp.message != "Message to forward not found":
                         raise
+                    message.reply_text(
+                        "This message seems to have been lost - I'll remove it "
+                        "from your notes list.")
+                    sql.rm_note(chat_id, notename)
             else:
                 try:
                     bot.forward_message(
@@ -80,15 +79,14 @@ def get(context, update, notename, show_none=True, no_format=False):
                         from_chat_id=chat_id,
                         message_id=note.value)
                 except BadRequest as excp:
-                    if excp.message == "Message to forward not found":
-                        message.reply_text(
-                            "Looks like the original sender of this note has deleted "
-                            "their message - sorry! Get your bot admin to start using a "
-                            "message dump to avoid this. I'll remove this note from "
-                            "your saved notes.")
-                        sql.rm_note(chat_id, notename)
-                    else:
+                    if excp.message != "Message to forward not found":
                         raise
+                    message.reply_text(
+                        "Looks like the original sender of this note has deleted "
+                        "their message - sorry! Get your bot admin to start using a "
+                        "message dump to avoid this. I'll remove this note from "
+                        "your saved notes.")
+                    sql.rm_note(chat_id, notename)
         else:
             text = note.value
             keyb = []
@@ -245,12 +243,9 @@ def list_notes(update: Update, _):
 def __import_data__(chat_id, data):
     failures = []
     for notename, notedata in data.get('extra', {}).items():
-        match = FILE_MATCHER.match(notedata)
-
-        if match:
+        if match := FILE_MATCHER.match(notedata):
             failures.append(notename)
-            notedata = notedata[match.end():].strip()
-            if notedata:
+            if notedata := notedata[match.end() :].strip():
                 sql.add_note_to_db(
                     chat_id, notename[1:], notedata, sql.Types.TEXT)
         else:

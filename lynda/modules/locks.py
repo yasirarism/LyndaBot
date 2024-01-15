@@ -136,8 +136,7 @@ def lock(update: Update, context: CallbackContext) -> str:
             user = update.effective_user
             if args[0] in LOCK_TYPES:
                 sql.update_lock(chat.id, args[0], locked=True)
-                message.reply_text(
-                    "Locked {} messages for all non-admins!".format(args[0]))
+                message.reply_text(f"Locked {args[0]} messages for all non-admins!")
 
                 return (
                     f"<b>{html.escape(chat.title)}:</b>\n"
@@ -163,8 +162,7 @@ def lock(update: Update, context: CallbackContext) -> str:
                 elif args[0] == "all":
                     chat.set_permissions(can_send_messages=False)
                 """
-                message.reply_text(
-                    "Locked {} for all non-admins!".format(args[0]))
+                message.reply_text(f"Locked {args[0]} for all non-admins!")
                 return (
                     f"<b>{html.escape(chat.title)}:</b>\n"
                     f"#LOCK\n"
@@ -223,7 +221,7 @@ def unlock(update: Update, context: CallbackContext) -> str:
                 elif args[0] == "all":
                     chat.set_permissions(can_send_messages=True, can_send_media_messages=True, can_send_other_messages=True, can_add_web_page_previews=True, can_send_polls=True)
                 """
-                message.reply_text("Unlocked {} for everyone!".format(args[0]))
+                message.reply_text(f"Unlocked {args[0]} for everyone!")
 
                 return (
                     f"<b>{html.escape(chat.title)}:</b>\n"
@@ -316,8 +314,10 @@ def format_lines(lst, spaces):
 
 
 def repl(lst, index, true_val, false_val):
-    return [t[0:index] + [true_val if t[index] else false_val] +
-            t[index + 1:len(t)] for t in lst]
+    return [
+        (t[:index] + [true_val if t[index] else false_val] + t[index + 1 :])
+        for t in lst
+    ]
 
 
 def build_lock_message(chat_id):
